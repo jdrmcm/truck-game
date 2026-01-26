@@ -1,9 +1,9 @@
 extends VehicleBody3D
 
 @export var max_steer = 0.6
-@export var engine_power = 75
+@export var engine_power = 150
 @export var steer_rate = 0.45
-@export var brake_force = 7.5
+@export var brake_force = 8
 @export var attached_trailer: Trailer
 
 @onready var steering_wheel: MeshInstance3D = $tractor/Cube/steering_wheel
