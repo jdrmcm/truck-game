@@ -1,7 +1,7 @@
 extends VehicleBody3D
 
 @export var max_steer = 0.6
-@export var engine_power = 150
+@export var engine_power = 200
 @export var steer_rate = 0.45
 @export var brake_force = 8
 @export var attached_trailer: Trailer
@@ -49,16 +49,39 @@ func _input(event: InputEvent) -> void:
 	
 	if Input.is_action_just_pressed("brake"):
 		handbrake = !handbrake
+	
+	if Input.is_action_just_pressed("attach_trailer"):
+		if !nearby_trailer:
+			return
+		
+		if attached_trailer:
+			attach_trailer(false, attached_trailer)
+		else:
+			attach_trailer(true, nearby_trailer)
 
 
+func attach_trailer(attach: bool, trailer: Trailer = null):
+	if attach:
+		trailer.freeze = false
+		trailer.global_position = hitch.global_position
+		trailer.rotation.z = 0
+		rotation.z = 0
+		attached_trailer = trailer
+		hitch.node_a = self.get_path()
+		hitch.node_b = trailer.get_path()
+	else:
+		trailer.freeze = true
+		attached_trailer = null
+		hitch.node_a = NodePath()
+		hitch.node_b = NodePath()
+
+
+var nearby_trailer: Trailer
 func _on_hitch_area_entered(area: Area3D) -> void:
 	if area.is_in_group("trailer_connection"):
-		attach_trailer(area.get_parent())
+		nearby_trailer = area.get_parent()
 
 
-func attach_trailer(trailer: Trailer):
-	trailer.freeze = false
-	trailer.global_position = hitch.global_position
-	attached_trailer = trailer
-	hitch.node_a = self.get_path()
-	hitch.node_b = trailer.get_path()
+func _on_hitch_area_exited(area: Area3D) -> void:
+	if area.is_in_group("trailer_connection"):
+		nearby_trailer = null
