@@ -9,7 +9,7 @@ extends RayCast3D
 @export var rest_dist       := 0.5
 @export var over_extend     := 0.0
 @export var wheel_radius    := 0.4
-@export var z_traction      := 0.05
+@export var z_traction      := 0.5
 
 @export_category("Motor")
 @export var is_motor := false
@@ -87,10 +87,10 @@ func apply_wheel_physics(car: RaycastVehicle) -> void:
 	#var x_force := -steer_side_dir * desired_accel * (mass/4.0)
 	
 	
-	# tire z traction
+	# tire z traction (rolling resistance)
 	var f_vel           := forward_dir.dot(tire_vel)
-	var z_friction      := z_traction
-	var z_force          = global_basis.z * f_vel * z_friction * ((car.mass * gravity) / car.total_wheels)
+	var normal_force    := (car.mass * gravity) / car.total_wheels
+	var z_force          = -forward_dir * sign(f_vel) * z_traction * normal_force
 	
 	
 	# apply forces

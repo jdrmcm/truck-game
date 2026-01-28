@@ -8,8 +8,7 @@ extends RigidBody3D
 @export var tire_turn_speed: float = 1.0
 @export var tire_max_turn_degrees := 40.0
 @export var use_skid_marks := false
-@export var pneumatic_trail := 0.03
-@export var steering_return_damping := 0.5
+@export var steering_return_damping := 2.0
 
 @export var skid_marks: Array[GPUParticles3D]
 
@@ -36,24 +35,20 @@ func _get_point_velocity(point: Vector3) -> Vector3:
 
 func _basic_steering_rotation(wheel: RaycastWheel, delta: float) -> void:
 	if not wheel.is_steer: return
-	
+
+	var raw_ratio := clampf(linear_velocity.length() / max_speed, 0.0, 1.0)
+	var speed_ratio := clampf((raw_ratio - 0.5) / 0.9, 0.0, 1.0)
+	var max_turn := lerpf(tire_max_turn_degrees, tire_max_turn_degrees * 0.3, speed_ratio)
+
 	var turn_input := Input.get_axis("right", "left") * tire_turn_speed
-	
-	var self_aligning_torque := 0.0
-	
-	var tire_vel := _get_point_velocity(wheel.wheel.global_position)
-	var lateral_vel := wheel.global_basis.z.dot(tire_vel)
-	
-	var slip_angle := atan2(lateral_vel, -global_basis.z.dot(tire_vel))
-	
-	self_aligning_torque = -slip_angle * pneumatic_trail * 100.0
-	
+
 	if turn_input:
-		wheel.rotation.y = clampf(wheel.rotation.y + turn_input * delta, 
-			deg_to_rad(-tire_max_turn_degrees), deg_to_rad(tire_max_turn_degrees))
+		wheel.rotation.y = clampf(wheel.rotation.y + turn_input * delta,
+			deg_to_rad(-max_turn), deg_to_rad(max_turn))
 	else:
-		wheel.rotation.y = clampf(wheel.rotation.y + self_aligning_torque * delta,
-			deg_to_rad(-tire_max_turn_degrees), deg_to_rad(tire_max_turn_degrees))
+		var speed := linear_velocity.length()
+		var speed_factor := clampf(speed / max_speed, 0.0, 1.0)
+		wheel.rotation.y = move_toward(wheel.rotation.y, 0.0, steering_return_damping * speed_factor * delta)
 
 
 func _physics_process(delta: float) -> void:
