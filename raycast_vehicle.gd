@@ -35,13 +35,13 @@ func _get_point_velocity(point: Vector3) -> Vector3:
 
 func _basic_steering_rotation(wheel: RaycastWheel, delta: float) -> void:
 	if not wheel.is_steer: return
-
+	
 	var raw_ratio := clampf(linear_velocity.length() / max_speed, 0.0, 1.0)
 	var speed_ratio := clampf((raw_ratio - 0.5) / 0.9, 0.0, 1.0)
 	var max_turn := lerpf(tire_max_turn_degrees, tire_max_turn_degrees * 0.3, speed_ratio)
-
+	
 	var turn_input := Input.get_axis("right", "left") * tire_turn_speed
-
+	
 	if turn_input:
 		wheel.rotation.y = clampf(wheel.rotation.y + turn_input * delta,
 			deg_to_rad(-max_turn), deg_to_rad(max_turn))

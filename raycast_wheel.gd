@@ -2,13 +2,13 @@ class_name RaycastWheel
 extends RayCast3D
 
 @export_group("Wheel properties")
-@export var spring_strength := 100.0
+@export var spring_strength := 7500
 # d=z(2Sqrt[k*m]), z=0.1, m=1, k=100 is the formula for optimal spring damping. K is spring strength and M is car mass in kg.
 # Z value should be between 0.1-1.0. 0.1-0.2 for more arcadey feel, 0.2-1.0 for more realistic.
-@export var spring_damping  := 2.0
-@export var rest_dist       := 0.5
+@export var spring_damping  := 1400
+@export var rest_dist       := 0.7
 @export var over_extend     := 0.0
-@export var wheel_radius    := 0.4
+@export var wheel_radius    := 0.8
 @export var z_traction      := 0.5
 
 @export_category("Motor")
@@ -32,9 +32,9 @@ func apply_wheel_physics(car: RaycastVehicle) -> void:
 	
 	
 	# rotate wheel mesh
-	var forward_dir     := -global_basis.z
+	var forward_dir     := global_basis.z
 	var vel             := forward_dir.dot(car.linear_velocity)
-	wheel.rotate_x( (-vel * get_physics_process_delta_time()) / wheel_radius )
+	wheel.rotate_x( (vel * get_physics_process_delta_time()) / wheel_radius )
 	
 	
 	if not is_colliding(): return
@@ -62,7 +62,7 @@ func apply_wheel_physics(car: RaycastVehicle) -> void:
 	if is_motor and car.motor_input:
 		var speed_ratio := vel / car.max_speed
 		var accel       := car.accel_curve.sample_baked(speed_ratio)
-		var accel_force := forward_dir * car.acceleration * car.motor_input * accel
+		var accel_force := -forward_dir * car.acceleration * car.motor_input * accel
 		car.apply_force(accel_force, force_pos)
 	
 	
