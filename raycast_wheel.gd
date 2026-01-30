@@ -70,6 +70,7 @@ func apply_wheel_physics(car: RaycastVehicle) -> void:
 	var steering_x_vel  := global_basis.x.dot(tire_vel)
 	
 	grip_factor          = absf(steering_x_vel/tire_vel.length())
+	if is_nan(grip_factor): grip_factor = 0
 	var x_traction      := grip_curve.sample_baked(grip_factor)
 	
 	if not car.handbrake and grip_factor < 0.2:
