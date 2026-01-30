@@ -41,12 +41,14 @@ func attach_trailer(attach: bool, trailer: RaycastVehicle = null):
 		trailer.lock_rotation = false
 		trailer.global_position = hitch.global_position
 		trailer.rotation.z = 0
+		trailer.attached = true
 		rotation.z = 0
 		attached_trailer = trailer
 		hitch.node_a = self.get_path()
 		hitch.node_b = trailer.get_path()
 	else:
 		trailer.lock_rotation = true
+		trailer.attached = false
 		trailer.rotation.z = 0
 		trailer.rotation.x = 0
 		attached_trailer = null

@@ -17,6 +17,7 @@ extends RigidBody3D
 var motor_input := 0
 var handbrake := false
 var is_slipping := false
+var attached := false
 
 
 func _unhandled_input(event: InputEvent) -> void:
